@@ -2,7 +2,7 @@
 
 An ESP8266-based Internet radio project using an ST7735S TFT display, a MAX98357A I2S audio amplifier, and a rotary encoder.
 
-This project is part of the **ARDUnia** [Hamidreza Milaninia] open-source electronics framework.
+This project is part of the **ARDUnia** open-source electronics framework.
 
 ## Features
 
@@ -73,7 +73,6 @@ Install the following libraries through the Arduino Library Manager:
 - ESP8266Audio
 - Adafruit GFX Library
 - Adafruit ST7735 and ST7789 Library
-- ArduinoJson 6.x
 - PersianDate by ARDUnia
 
 The ESP8266 core is also required.
@@ -133,6 +132,7 @@ This project is released under the MIT License. See [LICENSE](LICENSE).
 ## Author
 
 **ARDUnia**
+Hamidreza Milaninia
 
 Open-source electronics projects and Arduino/ESP development.
 
