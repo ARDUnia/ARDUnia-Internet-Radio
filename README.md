@@ -2,7 +2,7 @@
 
 An ESP8266-based Internet radio project using an ST7735S TFT display, a MAX98357A I2S audio amplifier, and a rotary encoder.
 
-This project is part of the **ARDUnia** open-source electronics framework.
+This project is part of the **ARDUnia** [Hamidreza Milaninia] open-source electronics framework.
 
 ## Features
 
