@@ -1,138 +1,198 @@
 # ARDUnia Internet Radio
 
-An ESP8266-based Internet radio project using an ST7735S TFT display, a MAX98357A I2S audio amplifier, and a rotary encoder.
+An ESP8266-based Internet Radio receiver using an ST7735S 160×128 TFT display, MAX98357A I2S digital audio amplifier, rotary encoder, and a Wi-Fi setup portal.
 
-This project is part of the **ARDUnia** open-source electronics framework.
+This project is part of the **ARDUnia** open-source electronics projects.
+
+## Version
+
+**v2.0.0 — Stable Release**
+
+This release is based on the stable V6.7 code and includes the charging mode and improved buffer/volume display.
 
 ## Features
 
-- Internet radio playback on ESP8266 / NodeMCU
-- MP3 stream decoding with ESP8266Audio
+- ESP8266 / NodeMCU based Internet Radio
+- MP3 Internet stream decoding with ESP8266Audio
 - MAX98357A I2S digital audio output
 - ST7735S 160×128 TFT display
-- Rotary encoder for station navigation
-- Mute and volume control
-- Wi-Fi signal indicator
-- Wi-Fi setup portal using an ESP8266 access point
+- Rotary encoder station navigation
+- Rotary encoder mute/menu control
+- Analog volume control
+- Wi-Fi setup through an ESP8266 Access Point
 - Wi-Fi credentials stored in EEPROM
 - Automatic Wi-Fi setup after repeated connection failures
-- NTP time synchronization
-- Persian (Jalali) date display
-- English-only display interface
+- NTP clock synchronization
+- Jalali (Persian) date display
+- English display interface
+- ICY / StreamTitle metadata
 - Automatic stream reconnection
-- ICY / StreamTitle metadata support
+- Audio buffer level indication
+- Wi-Fi signal indication
+- Startup memory menu
+- Memory reset option
+- 90-minute charging mode
+- Charging animation and countdown
+- Charging mode can be interrupted with the rotary encoder
+- A charging session continues if the device remains powered and the user returns to charging mode
+- Charging state is intentionally kept in RAM; after power-off, a new 90-minute charging session starts
+- Charge-complete audio notification
+- Reduced TFT redraw to minimize visible flicker
 
 ## Hardware
-
-### Main components
 
 | Component | Description |
 |---|---|
 | ESP8266 NodeMCU | Main controller |
-| ST7735S | 160×128 TFT display |
-| MAX98357A | I2S Class-D audio amplifier |
-| Rotary Encoder | KY-040 or compatible module |
+| ST7735S | 1.8-inch 160×128 TFT |
+| MAX98357A | I2S Class-D mono amplifier |
+| Rotary Encoder | KY-040 or compatible module with pull-up resistors |
+| Potentiometer | Volume control through A0 |
 | Speaker | Connected to MAX98357A |
 
-### Pin assignment
+See [`docs/HARDWARE.md`](docs/HARDWARE.md) for the complete wiring table.
 
-#### ST7735S
-
-| TFT | ESP8266 |
-|---|---|
-| CS | GPIO5 (D1) |
-| DC | GPIO4 (D2) |
-| RST | Board RST |
-| SCK | GPIO14 (D5) |
-| MOSI | GPIO13 (D7) |
-
-#### MAX98357A
-
-| MAX98357A | ESP8266 |
-|---|---|
-| BCLK | GPIO15 (D8) |
-| LRC / LCLK | GPIO2 (D4) |
-| DIN | GPIO3 (RX) |
-
-#### Rotary Encoder
+## Rotary Encoder Pins
 
 | Encoder | ESP8266 |
 |---|---|
-| CLK | GPIO12 (D6) |
-| DT | GPIO16 (D0) |
-| SW | GPIO0 (D3) |
+| CLK | D6 / GPIO12 |
+| DT | D0 / GPIO16 |
+| SW | D3 / GPIO0 |
 | + | 3.3V |
 | GND | GND |
 
-The encoder module is assumed to have its own pull-up resistors.
+The encoder module should have pull-up resistors. GPIO16 does not provide the normal internal pull-up used by other ESP8266 GPIOs.
 
-## Required Arduino Libraries
+## Display Pins
 
-Install the following libraries through the Arduino Library Manager:
+| ST7735S | ESP8266 |
+|---|---|
+| CS | D1 / GPIO5 |
+| DC | D2 / GPIO4 |
+| RST | Board RST |
+| SCK | D5 / GPIO14 |
+| MOSI | D7 / GPIO13 |
 
-- ESP8266Audio
-- Adafruit GFX Library
-- Adafruit ST7735 and ST7789 Library
-- PersianDate by ARDUnia
+The display resolution is **160×128** and the project uses landscape orientation.
 
-The ESP8266 core is also required.
+## MAX98357A Pins
 
-## Arduino IDE
+| MAX98357A | ESP8266 |
+|---|---|
+| BCLK | D8 / GPIO15 |
+| LRC / LCLK | D4 / GPIO2 |
+| DIN | RX / GPIO3 |
+| SD | 3.3V |
+| GAIN | Leave floating |
+| GND | GND |
 
-The project was developed and tested with an ESP8266 NodeMCU environment.
+Connect the speaker only to the MAX98357A speaker output.
 
-Recommended board selection:
+## Software Requirements
+
+### Arduino Libraries
+
+Install:
+
+1. ESP8266Audio
+2. Adafruit GFX Library
+3. Adafruit ST7735 and ST7789 Library
+4. PersianDate by ARDUnia
+5. ArduinoJson 6.x
+
+The ESP8266 Arduino core is also required.
+
+### Board
+
+Recommended board:
 
 **Generic ESP8266 Module**
 
-Use settings appropriate for your ESP8266 board and flash size.
+Use settings appropriate for your ESP8266 module and flash size.
 
 ## First Wi-Fi Setup
 
-The project does not require an SSID or password to be hard-coded into the source code.
+No Wi-Fi SSID or password is hard-coded in the source.
 
-On the first boot, or after repeated failed connection attempts, the ESP8266 starts a Wi-Fi setup access point:
+On the first boot, or after repeated failed Wi-Fi connection attempts, the ESP8266 starts:
 
 `InternetRadio-Setup`
 
-Connect to this network using a phone or computer and open:
+Connect to this access point from a phone or computer and open:
 
 `192.168.4.1`
 
-Select the desired Wi-Fi network, enter its password, and save the settings.
+Select the desired Wi-Fi network, enter the password, and save the configuration.
 
 The credentials are stored in EEPROM and are used automatically on subsequent boots.
 
+## Startup Menu
+
+After power-up, the project provides a startup menu allowing the user to:
+
+1. Continue with saved memory
+2. Clear saved memory
+3. Enter charging mode
+
+The memory reset clears the saved Wi-Fi credentials and saved project data.
+
+## Charging Mode
+
+Charging mode is designed for hardware configurations where the ESP8266 cannot directly measure battery state.
+
+- Internet and Wi-Fi are disabled.
+- Radio playback is stopped.
+- A 90-minute countdown is used as the charging period.
+- The display shows a battery animation, charge percentage and remaining time.
+- Pressing the rotary encoder returns to the startup menu.
+- Selecting charging again continues the remaining session while the device has remained powered.
+- After power-off, the next charging session starts again from 90 minutes.
+- At completion, a short audio notification is generated through the existing I2S output.
+
+**Important:** The timer is a software estimate. It does not measure actual battery voltage, current, or state of charge.
+
 ## Display
 
-The TFT interface uses English text because the ST7735S display configuration in this project does not provide Persian text rendering.
+All user-facing display text is in English because the current ST7735S UI does not provide Persian text rendering.
 
 The clock is displayed as:
 
 `HH:MM`
 
-Seconds are intentionally not displayed.
+Seconds are intentionally hidden.
 
 ## Audio
 
-The project uses ESP8266Audio for MP3 decoding and sends digital audio through I2S to the MAX98357A.
+MP3 decoding is performed by ESP8266Audio. Digital audio is sent through I2S to the MAX98357A.
 
-The MAX98357A should be powered according to its module specifications. Connect the speaker to the amplifier output and do not connect the speaker output directly to ESP8266 GPIO pins.
+The project is designed around the MAX98357A digital audio path used in the tested hardware configuration.
 
-## Project Status
+## Project Structure
 
-This is the initial public version of the ARDUnia Internet Radio project.
+```text
+ARDUnia-Internet-Radio/
+├── README.md
+├── CHANGELOG.md
+├── LICENSE
+├── docs/
+│   └── HARDWARE.md
+└── src/
+    └── ARDUnia_Internet_Radio_v2.0.0.ino
+```
 
-The current release focuses on reliable Internet radio playback, Wi-Fi configuration, display, audio output, and rotary encoder control.
+## Status
 
-## License
+**Stable / tested hardware release**
 
-This project is released under the MIT License. See [LICENSE](LICENSE).
+The source in this release is the stable version used for the ARDUnia Internet Radio build.
 
 ## Author
 
-**ARDUnia**
-Hamidreza Milaninia
+**ARDUnia / Hamidreza Milaninia**
 
-Open-source electronics projects and Arduino/ESP development.
+GitHub: https://github.com/ARDUnia
 
+## License
+
+MIT License. See [`LICENSE`](LICENSE).
