@@ -3,6 +3,7 @@
 An ESP8266-based Internet Radio receiver using an ST7735S 160×128 TFT display, MAX98357A I2S digital audio amplifier, rotary encoder, and a Wi-Fi setup portal.
 
 This project is part of the **ARDUnia** open-source electronics projects.
+[Hamidreza Milaninia – Personal Website](https://hrmnia.com/)
 
 ## Version
 
